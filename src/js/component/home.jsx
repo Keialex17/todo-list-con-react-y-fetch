@@ -1,26 +1,103 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 
-//include images into your bundle
-import rigoImage from "../../img/rigo-baby.jpg";
+const api= "https://assets.breatheco.de/apis/fake/todos/user/Keialex1702"
 
-//create your first component
-const Home = () => {
-	return (
-		<div className="text-center">
-			<h1 className="text-center mt-5">Hello Rigo!</h1>
-			<p>
-				<img src={rigoImage} />
-			</p>
-			<a href="#" className="btn btn-success">
-				If you see this green button... bootstrap is working...
-			</a>
-			<p>
-				Made by{" "}
-				<a href="http://www.4geeksacademy.com">4Geeks Academy</a>, with
-				love!
-			</p>
-		</div>
-	);
+
+const ToDo = () => {
+
+  const [taskList, setTaskList] = useState([]);
+  const [task, setTask] = useState({label: "",done: false });
+  const [isShown, setIsShown] =useState(-1);
+  
+ 
+  const getTask = async () =>{
+    try {
+      const response= await fetch(api, {
+        headers: {"Content-Type" : "application/json"}
+      })
+      const data= await response.json()
+      setTaskList(data)
+    } catch (error) {
+      console.log("error", error)
+    }
+  }
+
+  const addTask = async (data)=>{
+    try {
+      console.log(data)
+      const response= await fetch(api,{
+        headers: {"Content-Type" : "application/json"},
+        method: "PUT",
+        body: JSON.stringify(data)
+      })
+      getTask()
+    } catch (error) {
+      
+    }
+  }
+
+  const handlertask = (event) => {
+    setTask({label: event.target.value, done: false});
+  };
+
+  const handlerKeyPress = (event) => {
+    // event.preventDefault();
+
+    if (event.key == "Enter" && task.label != "") {
+    
+        addTask([...taskList, task]);
+        setTask("");
+      
+    }
+  };
+  const handlerButtomDelete = (indexid) => setTaskList(taskList.filter((tarea , index)=> (index != indexid)))
+
+  useEffect(()=>{
+    getTask()
+
+  }, [])
+            
+  return (
+    <div className="container">
+    <div className="row vh-100 colores">
+      <div className="title d-flex justify-content-center pt-2">
+        <h1>Lista de tareas</h1>
+      </div>
+      <div className="col-3"></div>
+      <div className="col-6">
+        <div className="Card" id="card">
+          <div className="form-floating mb-3">
+            <input
+              onChange={handlertask}
+              value={task.label}
+              onKeyDown={handlerKeyPress}
+              type="text"
+              className="form-control  "
+              id="floatingInput"
+              placeholder="Tarea por hacer"
+            />
+            
+            <label htmlFor="floatingInput">No hay tareas, añadir tareas.</label>
+            <div className="task"></div>
+            {taskList.map((tarea, i) => {
+              return (
+              <span className="d-flex justify-content-between py-2 px-3 g-tareas text-black my-1
+              rounded-1 border border border-info" key={`s-${i}`}
+              onMouseEnter={() => {setIsShown(i)}} onMouseLeave={() => {setIsShown(-1)}} >
+                <h2 key={i}>{tarea.label}</h2> 
+               
+                { isShown == i &&
+                <i className="fas fa-minus-circle mt-3 ms-4 position-relative me-3 " 
+                key={`p-${i}`} onClick={() => {handlerButtomDelete(i)}}></i>}
+              </span>);
+              
+            })}
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+  );
 };
 
-export default Home;
+export default ToDo;
