@@ -36,8 +36,48 @@ const ToDo = () => {
     }
   }
 
+  const deleteTask = async (indexid) =>{
+    const newListTask= taskList.filter((tarea , index)=> (index != indexid))
+    console.log(newListTask)
+    try {
+      const response = await fetch(api,{
+        headers: {"Content-Type" : "application/json"},
+        method: "PUT",
+        body: JSON.stringify(newListTask)
+      })
+      getTask()
+    } catch (error) {
+      
+    }
+  }
+
+  const createUser = async() =>{
+    try {
+      const response = await fetch(api,{
+        headers: {"Content-Type" : "application/json"},
+        method: "POST",
+        body: JSON.stringify([])
+      })
+      getTask()
+    } catch (error) {
+      
+    }
+  }
+
+  const deleteAllTask = async () =>{
+    try {
+      const response = await fetch(api,{
+        headers: {"Content-Type" : "application/json"},
+        method: "DELETE"
+      })
+      createUser()
+    } catch (error) {
+      
+    }
+  }
+
   const handlertask = (event) => {
-    setTask({label: event.target.value, done: false});
+    setTask({...task, [event.target.name] : event.target.value});
   };
 
   const handlerKeyPress = (event) => {
@@ -46,7 +86,7 @@ const ToDo = () => {
     if (event.key == "Enter" && task.label != "") {
     
         addTask([...taskList, task]);
-        setTask("");
+        setTask({label: "", done: false});
       
     }
   };
@@ -70,6 +110,7 @@ const ToDo = () => {
             <input
               onChange={handlertask}
               value={task.label}
+              name="label"
               onKeyDown={handlerKeyPress}
               type="text"
               className="form-control  "
@@ -88,11 +129,16 @@ const ToDo = () => {
                
                 { isShown == i &&
                 <i className="fas fa-minus-circle mt-3 ms-4 position-relative me-3 " 
-                key={`p-${i}`} onClick={() => {handlerButtomDelete(i)}}></i>}
+                key={`p-${i}`} onClick={() => {deleteTask(i)}}></i>}
               </span>);
               
             })}
           </div>
+          <button className="d-flex justify-content-between py-2 px-3 g-tareas my-1
+              rounded-1 border border border-info"
+              onClick={() => {deleteAllTask()}} >
+            Delete all
+          </button>
         </div>
       </div>
     </div>
